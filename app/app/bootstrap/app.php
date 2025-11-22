@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Middleware\CheckPlanFeature;
+use App\Http\Middleware\CheckSubscription;
 use App\Http\Middleware\EnsureAdmin;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -15,6 +17,8 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
             'admin' => EnsureAdmin::class,
+            'subscribed' => CheckSubscription::class,
+            'plan.feature' => CheckPlanFeature::class,
         ]);
         
         // Configure CORS for API

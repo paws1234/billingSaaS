@@ -10,6 +10,28 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Route;
 
 // Public routes
+Route::post('/register', function (Request $request) {
+    $request->validate([
+        'name' => 'required|string|max:255',
+        'email' => 'required|email|unique:users,email',
+        'password' => 'required|min:8|confirmed',
+    ]);
+
+    $user = \App\Models\User::create([
+        'name' => $request->name,
+        'email' => $request->email,
+        'password' => Hash::make($request->password),
+        'role' => 'user',
+    ]);
+
+    $token = $user->createToken('api-token')->plainTextToken;
+
+    return response()->json([
+        'token' => $token,
+        'user' => $user->only(['id', 'name', 'email', 'role']),
+    ], 201);
+});
+
 Route::post('/login', function (Request $request) {
     $request->validate([
         'email' => 'required|email',
@@ -53,5 +75,43 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/invoices', [AdminController::class, 'invoices']);
         Route::get('/users', [AdminController::class, 'users']);
         Route::get('/stats', [AdminController::class, 'stats']);
+    });
+
+    // Protected features - require active subscription
+    Route::middleware('subscribed')->group(function () {
+        // Basic features - all plans
+        Route::get('/projects', function (Request $request) {
+            $limits = $request->get('plan_limits', []);
+            return response()->json([
+                'message' => 'Projects endpoint',
+                'max_projects' => $limits['max_projects'] ?? 0,
+                'projects' => [], // Would fetch actual projects
+            ]);
+        });
+
+        // Advanced features - Pro and Enterprise only
+        Route::middleware('plan.feature:advanced_analytics')->group(function () {
+            Route::get('/analytics', function (Request $request) {
+                return response()->json([
+                    'message' => 'Advanced analytics - Pro/Enterprise only',
+                    'data' => [
+                        'revenue_chart' => [],
+                        'user_retention' => [],
+                        'conversion_funnel' => [],
+                    ],
+                ]);
+            });
+        });
+
+        // Priority support - Pro and Enterprise only
+        Route::middleware('plan.feature:priority_support')->group(function () {
+            Route::post('/support/priority', function (Request $request) {
+                return response()->json([
+                    'message' => 'Priority support ticket created',
+                    'ticket_id' => rand(1000, 9999),
+                    'estimated_response' => '< 1 hour',
+                ]);
+            });
+        });
     });
 });
