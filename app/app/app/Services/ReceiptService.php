@@ -19,8 +19,8 @@ class ReceiptService
             'plan' => $invoice->subscription?->plan,
         ]);
 
-        $filename = 'receipts/' . $invoice->id . '/invoice-' . $invoice->id . '.pdf';
-        
+        $filename = 'receipts/'.$invoice->id.'/invoice-'.$invoice->id.'.pdf';
+
         // Save locally first
         Storage::disk('local')->put($filename, $pdf->output());
 
@@ -29,12 +29,12 @@ class ReceiptService
 
     public function uploadToS3(Invoice $invoice, string $localPath): string
     {
-        if (!Storage::disk('local')->exists($localPath)) {
+        if (! Storage::disk('local')->exists($localPath)) {
             throw new \Exception('Local receipt file not found');
         }
 
         $content = Storage::disk('local')->get($localPath);
-        $s3Path = 'receipts/' . date('Y/m') . '/invoice-' . $invoice->id . '.pdf';
+        $s3Path = 'receipts/'.date('Y/m').'/invoice-'.$invoice->id.'.pdf';
 
         // Upload to S3
         Storage::disk('s3')->put($s3Path, $content, 'public');
@@ -53,16 +53,16 @@ class ReceiptService
         // Upload to S3 if configured
         if (config('filesystems.default') === 's3' || config('app.env') === 'production') {
             $s3Path = $this->uploadToS3($invoice, $localPath);
-            
+
             // Update invoice with S3 path
             $invoice->update(['receipt_path' => $s3Path]);
-            
+
             return Storage::disk('s3')->url($s3Path);
         }
 
         // Update invoice with local path
         $invoice->update(['receipt_path' => $localPath]);
-        
+
         return Storage::disk('local')->url($localPath);
     }
 }

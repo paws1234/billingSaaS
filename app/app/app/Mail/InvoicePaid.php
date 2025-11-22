@@ -13,14 +13,12 @@ class InvoicePaid extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public function __construct(public Invoice $invoice)
-    {
-    }
+    public function __construct(public Invoice $invoice) {}
 
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Payment Received - Invoice #' . $this->invoice->id,
+            subject: 'Payment Received - Invoice #'.$this->invoice->id,
         );
     }
 

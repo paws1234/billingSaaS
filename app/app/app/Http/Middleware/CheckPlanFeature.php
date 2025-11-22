@@ -42,7 +42,7 @@ class CheckPlanFeature
     {
         $user = $request->user();
 
-        if (!$user) {
+        if (! $user) {
             return response()->json(['message' => 'Unauthenticated'], 401);
         }
 
@@ -57,10 +57,10 @@ class CheckPlanFeature
             ->whereIn('status', ['active', 'trialing'])
             ->first();
 
-        if (!$subscription) {
+        if (! $subscription) {
             return response()->json([
                 'message' => 'Active subscription required',
-                'subscription_required' => true
+                'subscription_required' => true,
             ], 403);
         }
 
@@ -68,7 +68,7 @@ class CheckPlanFeature
         $planSlug = $plan->slug;
 
         // Check if plan has access to this feature
-        if (!isset($this->planLimits[$planSlug])) {
+        if (! isset($this->planLimits[$planSlug])) {
             return response()->json(['message' => 'Invalid plan'], 500);
         }
 
@@ -77,10 +77,10 @@ class CheckPlanFeature
         // Boolean feature check (e.g., advanced_analytics)
         if (isset($limits[$feature]) && $limits[$feature] === false) {
             return response()->json([
-                'message' => "This feature requires a higher plan tier",
+                'message' => 'This feature requires a higher plan tier',
                 'required_plan' => 'pro',
                 'current_plan' => $planSlug,
-                'feature' => $feature
+                'feature' => $feature,
             ], 403);
         }
 

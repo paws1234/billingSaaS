@@ -9,10 +9,10 @@ class PlanFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => fake()->words(2, true) . ' Plan',
+            'name' => fake()->words(2, true).' Plan',
             'slug' => fake()->unique()->slug(2),
             'provider' => 'stripe',
-            'provider_plan_id' => 'price_' . fake()->unique()->bothify('??????????'),
+            'provider_plan_id' => 'price_'.fake()->unique()->bothify('??????????'),
             'interval' => 'monthly',
             'amount' => fake()->numberBetween(500, 10000),
             'currency' => 'CAD',

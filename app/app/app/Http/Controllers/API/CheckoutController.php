@@ -9,9 +9,7 @@ use Illuminate\Http\Request;
 
 class CheckoutController extends Controller
 {
-    public function __construct(protected BillingService $billing)
-    {
-    }
+    public function __construct(protected BillingService $billing) {}
 
     public function createSession(Request $request, Plan $plan)
     {

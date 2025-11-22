@@ -2,7 +2,6 @@
 
 namespace Tests\Feature;
 
-use App\Models\Plan;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -23,7 +22,7 @@ class AuthenticationTest extends TestCase
         $response->assertStatus(201)
             ->assertJsonStructure([
                 'token',
-                'user' => ['id', 'name', 'email', 'role']
+                'user' => ['id', 'name', 'email', 'role'],
             ]);
 
         $this->assertDatabaseHas('users', [
@@ -47,7 +46,7 @@ class AuthenticationTest extends TestCase
         $response->assertStatus(200)
             ->assertJsonStructure([
                 'token',
-                'user' => ['id', 'name', 'email', 'role']
+                'user' => ['id', 'name', 'email', 'role'],
             ]);
     }
 

@@ -20,12 +20,12 @@ return Application::configure(basePath: dirname(__DIR__))
             'subscribed' => CheckSubscription::class,
             'plan.feature' => CheckPlanFeature::class,
         ]);
-        
+
         // Configure CORS for API
         $middleware->api(prepend: [
             \Illuminate\Http\Middleware\HandleCors::class,
         ]);
-        
+
         // Trust all proxies (for Render)
         $middleware->trustProxies(at: '*');
     })

@@ -10,9 +10,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class StripeWebhookController extends Controller
 {
-    public function __construct(protected StripePaymentService $service)
-    {
-    }
+    public function __construct(protected StripePaymentService $service) {}
 
     public function handle(Request $request): Response
     {
@@ -31,9 +29,11 @@ class StripeWebhookController extends Controller
                 $this->service->handleWebhook($event->toArray(), $signature);
             } catch (\UnexpectedValueException $e) {
                 Log::error('Invalid webhook payload', ['error' => $e->getMessage()]);
+
                 return response('Invalid payload', 400);
             } catch (\Stripe\Exception\SignatureVerificationException $e) {
                 Log::error('Invalid webhook signature', ['error' => $e->getMessage()]);
+
                 return response('Invalid signature', 400);
             }
         } else {

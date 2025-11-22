@@ -12,18 +12,18 @@ class BillingPortalController extends Controller
     {
         $user = $request->user();
 
-        if (!$user->provider_customer_id) {
+        if (! $user->provider_customer_id) {
             return response()->json([
-                'message' => 'No billing account found. Please subscribe to a plan first.'
+                'message' => 'No billing account found. Please subscribe to a plan first.',
             ], 404);
         }
 
         try {
             $stripe = new StripeClient(config('services.stripe.secret'));
-            
+
             $session = $stripe->billingPortal->sessions->create([
                 'customer' => $user->provider_customer_id,
-                'return_url' => env('FRONTEND_URL', config('app.url')) . '/subscriptions',
+                'return_url' => env('FRONTEND_URL', config('app.url')).'/subscriptions',
             ]);
 
             return response()->json([
@@ -32,7 +32,7 @@ class BillingPortalController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'message' => 'Failed to create billing portal session',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }

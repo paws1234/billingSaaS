@@ -3,7 +3,6 @@
 namespace Tests\Feature;
 
 use App\Models\Plan;
-use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -56,7 +55,7 @@ class PlanTest extends TestCase
                     'amount',
                     'currency',
                     'metadata',
-                ]
+                ],
             ]);
     }
 }

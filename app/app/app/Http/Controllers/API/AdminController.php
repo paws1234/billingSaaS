@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\Invoice;
 use App\Models\Subscription;
 use App\Models\User;
-use Illuminate\Http\Request;
 
 class AdminController extends Controller
 {

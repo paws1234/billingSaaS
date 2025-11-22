@@ -15,7 +15,7 @@ class CheckSubscription
     {
         $user = $request->user();
 
-        if (!$user) {
+        if (! $user) {
             return response()->json(['message' => 'Unauthenticated'], 401);
         }
 
@@ -29,10 +29,10 @@ class CheckSubscription
             ->whereIn('status', ['active', 'trialing'])
             ->exists();
 
-        if (!$hasActiveSubscription) {
+        if (! $hasActiveSubscription) {
             return response()->json([
                 'message' => 'Active subscription required to access this feature',
-                'subscription_required' => true
+                'subscription_required' => true,
             ], 403);
         }
 

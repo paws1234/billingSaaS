@@ -20,7 +20,7 @@ class XenditPaymentService implements PaymentProvider
     {
         $response = Http::withBasicAuth($this->secret, '')
             ->post('https://api.xendit.co/v2/invoices', [
-                'external_id' => 'plan_' . $plan->id . '_user_' . $user->id,
+                'external_id' => 'plan_'.$plan->id.'_user_'.$user->id,
                 'amount' => $plan->amount / 100,
                 'payer_email' => $user->email,
                 'description' => $plan->name,

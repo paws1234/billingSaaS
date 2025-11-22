@@ -11,9 +11,7 @@ use Stripe\StripeClient;
 
 class SubscriptionController extends Controller
 {
-    public function __construct(protected BillingService $billing)
-    {
-    }
+    public function __construct(protected BillingService $billing) {}
 
     public function plans()
     {
@@ -61,7 +59,7 @@ class SubscriptionController extends Controller
         $newPlan = Plan::findOrFail($request->plan_id);
 
         // Cannot change if subscription is not active
-        if (!in_array($subscription->status, ['active', 'trialing'])) {
+        if (! in_array($subscription->status, ['active', 'trialing'])) {
             return response()->json([
                 'message' => 'Can only change plan for active subscriptions',
             ], 422);
@@ -71,10 +69,10 @@ class SubscriptionController extends Controller
         if ($subscription->provider === 'stripe' && $subscription->provider_subscription_id) {
             try {
                 $stripe = new StripeClient(config('services.stripe.secret'));
-                
+
                 // Get the subscription from Stripe
                 $stripeSubscription = $stripe->subscriptions->retrieve($subscription->provider_subscription_id);
-                
+
                 // Update the subscription with new price
                 $stripe->subscriptions->update($subscription->provider_subscription_id, [
                     'items' => [[
@@ -94,8 +92,9 @@ class SubscriptionController extends Controller
                 ]);
             } catch (\Exception $e) {
                 \Log::error('Plan change failed', ['error' => $e->getMessage()]);
+
                 return response()->json([
-                    'message' => 'Failed to change plan: ' . $e->getMessage(),
+                    'message' => 'Failed to change plan: '.$e->getMessage(),
                 ], 500);
             }
         }
@@ -118,7 +117,7 @@ class SubscriptionController extends Controller
         if ($subscription->provider === 'stripe' && $subscription->provider_subscription_id) {
             try {
                 $stripe = new StripeClient(config('services.stripe.secret'));
-                
+
                 // Resume the subscription
                 $stripe->subscriptions->update($subscription->provider_subscription_id, [
                     'cancel_at_period_end' => false,
@@ -135,8 +134,9 @@ class SubscriptionController extends Controller
                 ]);
             } catch (\Exception $e) {
                 \Log::error('Resume subscription failed', ['error' => $e->getMessage()]);
+
                 return response()->json([
-                    'message' => 'Failed to resume subscription: ' . $e->getMessage(),
+                    'message' => 'Failed to resume subscription: '.$e->getMessage(),
                 ], 500);
             }
         }

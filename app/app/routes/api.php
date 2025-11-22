@@ -41,7 +41,7 @@ Route::post('/login', function (Request $request) {
 
     $user = \App\Models\User::where('email', $request->email)->first();
 
-    if (!$user || !Hash::check($request->password, $user->password)) {
+    if (! $user || ! Hash::check($request->password, $user->password)) {
         return response()->json(['message' => 'Invalid credentials'], 401);
     }
 
@@ -86,6 +86,7 @@ Route::middleware('auth:sanctum')->group(function () {
         // Basic features - all plans
         Route::get('/projects', function (Request $request) {
             $limits = $request->get('plan_limits', []);
+
             return response()->json([
                 'message' => 'Projects endpoint',
                 'max_projects' => $limits['max_projects'] ?? 0,

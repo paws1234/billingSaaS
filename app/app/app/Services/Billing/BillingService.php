@@ -8,9 +8,7 @@ use App\Services\Payments\PaymentProvider;
 
 class BillingService
 {
-    public function __construct(protected PaymentProvider $provider)
-    {
-    }
+    public function __construct(protected PaymentProvider $provider) {}
 
     public function startCheckout(User $user, Plan $plan): array
     {

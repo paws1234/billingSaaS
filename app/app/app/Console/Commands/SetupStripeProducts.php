@@ -9,6 +9,7 @@ use Stripe\StripeClient;
 class SetupStripeProducts extends Command
 {
     protected $signature = 'stripe:setup-products';
+
     protected $description = 'Create Stripe products and prices, then update database';
 
     public function handle()
@@ -48,15 +49,16 @@ class SetupStripeProducts extends Command
             try {
                 // Check if product already exists
                 $existingPlan = Plan::where('slug', $planData['slug'])->first();
-                
+
                 if ($existingPlan && $existingPlan->provider_plan_id) {
                     // Verify if the price exists in Stripe
                     try {
                         $stripe->prices->retrieve($existingPlan->provider_plan_id);
                         $this->warn("  ✓ {$planData['name']} already exists (Price ID: {$existingPlan->provider_plan_id})");
+
                         continue;
                     } catch (\Exception $e) {
-                        $this->warn("  Existing price not found in Stripe, creating new one...");
+                        $this->warn('  Existing price not found in Stripe, creating new one...');
                     }
                 }
 
@@ -108,7 +110,7 @@ class SetupStripeProducts extends Command
         $this->info('✅ Stripe setup complete!');
         $this->line('');
         $this->info('Your plans:');
-        
+
         Plan::all()->each(function ($plan) {
             $amount = $plan->amount / 100;
             $this->line("  • {$plan->name} - \${$amount} CAD/month (ID: {$plan->provider_plan_id})");

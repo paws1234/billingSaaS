@@ -9,9 +9,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class XenditWebhookController extends Controller
 {
-    public function __construct(protected XenditPaymentService $service)
-    {
-    }
+    public function __construct(protected XenditPaymentService $service) {}
 
     public function handle(Request $request): Response
     {

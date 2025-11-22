@@ -10,9 +10,7 @@ use Illuminate\Support\Facades\Storage;
 
 class InvoiceController extends Controller
 {
-    public function __construct(protected ReceiptService $receiptService)
-    {
-    }
+    public function __construct(protected ReceiptService $receiptService) {}
 
     public function index(Request $request)
     {
@@ -31,7 +29,7 @@ class InvoiceController extends Controller
         abort_unless($invoice->user_id === $request->user()->id, 403);
 
         // Generate receipt if not exists
-        if (!$invoice->receipt_path) {
+        if (! $invoice->receipt_path) {
             $this->receiptService->generateAndUpload($invoice);
             $invoice->refresh();
         }
@@ -49,7 +47,7 @@ class InvoiceController extends Controller
         if (Storage::disk('local')->exists($invoice->receipt_path)) {
             return response()->download(
                 Storage::disk('local')->path($invoice->receipt_path),
-                'invoice-' . $invoice->id . '.pdf'
+                'invoice-'.$invoice->id.'.pdf'
             );
         }
 

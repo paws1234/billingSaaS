@@ -13,9 +13,7 @@ class PaymentFailed extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public function __construct(public Subscription $subscription)
-    {
-    }
+    public function __construct(public Subscription $subscription) {}
 
     public function envelope(): Envelope
     {

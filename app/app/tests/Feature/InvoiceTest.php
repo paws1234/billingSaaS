@@ -3,8 +3,6 @@
 namespace Tests\Feature;
 
 use App\Models\Invoice;
-use App\Models\Plan;
-use App\Models\Subscription;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;

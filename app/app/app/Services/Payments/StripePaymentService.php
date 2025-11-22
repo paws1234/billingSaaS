@@ -17,6 +17,7 @@ use Stripe\StripeClient;
 class StripePaymentService implements PaymentProvider
 {
     protected StripeClient $stripe;
+
     protected ReceiptService $receiptService;
 
     public function __construct(ReceiptService $receiptService)
@@ -47,13 +48,13 @@ class StripePaymentService implements PaymentProvider
                 'price' => $plan->provider_plan_id,
                 'quantity' => 1,
             ]],
-            'success_url' => env('FRONTEND_URL', 'http://localhost:3000') . '/subscriptions?success=true&session_id={CHECKOUT_SESSION_ID}',
-            'cancel_url' => env('FRONTEND_URL', 'http://localhost:3000') . '/plans?canceled=true',
+            'success_url' => env('FRONTEND_URL', 'http://localhost:3000').'/subscriptions?success=true&session_id={CHECKOUT_SESSION_ID}',
+            'cancel_url' => env('FRONTEND_URL', 'http://localhost:3000').'/plans?canceled=true',
         ];
 
         // Add trial period if configured (14 days default)
         $trialDays = config('billing.trial_days', 14);
-        if ($trialDays > 0 && !$user->subscriptions()->where('status', '!=', 'canceled')->exists()) {
+        if ($trialDays > 0 && ! $user->subscriptions()->where('status', '!=', 'canceled')->exists()) {
             $sessionParams['subscription_data'] = [
                 'trial_period_days' => $trialDays,
             ];
@@ -164,7 +165,7 @@ class StripePaymentService implements PaymentProvider
             } catch (\Exception $e) {
                 Log::error('Failed to send invoice paid email', [
                     'invoice_id' => $invoice->id,
-                    'error' => $e->getMessage()
+                    'error' => $e->getMessage(),
                 ]);
             }
         }
@@ -204,11 +205,12 @@ class StripePaymentService implements PaymentProvider
         Log::info('Checkout session completed', [
             'session_id' => $sessionId,
             'customer_id' => $customerId,
-            'subscription_id' => $subscriptionId
+            'subscription_id' => $subscriptionId,
         ]);
 
         if (! $customerId || ! $subscriptionId) {
             Log::warning('Missing customer or subscription in checkout session');
+
             return;
         }
 
@@ -232,17 +234,17 @@ class StripePaymentService implements PaymentProvider
             } catch (\Exception $e) {
                 Log::error('Failed to send subscription activation email', [
                     'subscription_id' => $subscription->id,
-                    'error' => $e->getMessage()
+                    'error' => $e->getMessage(),
                 ]);
             }
 
             Log::info('Subscription activated via checkout', [
                 'subscription_id' => $subscription->id,
-                'stripe_subscription_id' => $subscriptionId
+                'stripe_subscription_id' => $subscriptionId,
             ]);
         } else {
             Log::warning('Could not find pending subscription to activate', [
-                'customer_id' => $customerId
+                'customer_id' => $customerId,
             ]);
         }
     }
@@ -278,13 +280,13 @@ class StripePaymentService implements PaymentProvider
                 } catch (\Exception $e) {
                     Log::error('Failed to send payment failed email', [
                         'subscription_id' => $subscription->id,
-                        'error' => $e->getMessage()
+                        'error' => $e->getMessage(),
                     ]);
                 }
 
                 Log::warning('Payment failed for subscription', [
                     'subscription_id' => $subscription->id,
-                    'user_id' => $user->id
+                    'user_id' => $user->id,
                 ]);
             }
         }
