@@ -2,12 +2,16 @@
 
 namespace App\Services\Payments;
 
+use App\Mail\InvoicePaid;
+use App\Mail\PaymentFailed;
+use App\Mail\SubscriptionActivated;
 use App\Models\Invoice;
 use App\Models\Plan;
 use App\Models\Subscription;
 use App\Models\User;
 use App\Services\ReceiptService;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Stripe\StripeClient;
 
 class StripePaymentService implements PaymentProvider
@@ -152,6 +156,17 @@ class StripePaymentService implements PaymentProvider
             } catch (\Exception $e) {
                 Log::error('Receipt generation failed', ['invoice_id' => $invoice->id, 'error' => $e->getMessage()]);
             }
+
+            // Send payment confirmation email
+            try {
+                Mail::to($invoice->user->email)
+                    ->send(new InvoicePaid($invoice->load(['subscription.plan', 'user'])));
+            } catch (\Exception $e) {
+                Log::error('Failed to send invoice paid email', [
+                    'invoice_id' => $invoice->id,
+                    'error' => $e->getMessage()
+                ]);
+            }
         }
     }
 
@@ -210,6 +225,17 @@ class StripePaymentService implements PaymentProvider
             $subscription->starts_at = now();
             $subscription->save();
 
+            // Send welcome email
+            try {
+                Mail::to($subscription->user->email)
+                    ->send(new SubscriptionActivated($subscription->load('plan')));
+            } catch (\Exception $e) {
+                Log::error('Failed to send subscription activation email', [
+                    'subscription_id' => $subscription->id,
+                    'error' => $e->getMessage()
+                ]);
+            }
+
             Log::info('Subscription activated via checkout', [
                 'subscription_id' => $subscription->id,
                 'stripe_subscription_id' => $subscriptionId
@@ -244,6 +270,17 @@ class StripePaymentService implements PaymentProvider
             if ($subscription) {
                 $subscription->status = 'past_due';
                 $subscription->save();
+
+                // Send payment failed email
+                try {
+                    Mail::to($subscription->user->email)
+                        ->send(new PaymentFailed($subscription->load(['plan', 'user'])));
+                } catch (\Exception $e) {
+                    Log::error('Failed to send payment failed email', [
+                        'subscription_id' => $subscription->id,
+                        'error' => $e->getMessage()
+                    ]);
+                }
 
                 Log::warning('Payment failed for subscription', [
                     'subscription_id' => $subscription->id,

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\API\AdminController;
+use App\Http\Controllers\API\BillingPortalController;
 use App\Http\Controllers\API\CheckoutController;
 use App\Http\Controllers\API\InvoiceController;
 use App\Http\Controllers\API\ProfileController;
@@ -68,6 +69,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/invoices', [InvoiceController::class, 'index']);
     Route::get('/invoices/{invoice}', [InvoiceController::class, 'show']);
     Route::get('/invoices/{invoice}/download', [InvoiceController::class, 'download']);
+
+    // Billing Portal (Stripe Customer Portal for payment method updates)
+    Route::post('/billing/portal', [BillingPortalController::class, 'createSession']);
 
     // Admin routes
     Route::middleware('admin')->prefix('admin')->group(function () {

@@ -79,11 +79,33 @@ function Subscriptions() {
     }
   };
 
+  const handleManageBilling = async () => {
+    setActionLoading('portal');
+    try {
+      const response = await api.post('/billing/portal');
+      if (response.data.portal_url) {
+        window.location.href = response.data.portal_url;
+      }
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to open billing portal');
+      setActionLoading(null);
+    }
+  };
+
   if (loading) return <div className="container"><p>Loading...</p></div>;
 
   return (
     <div className="container">
-      <h1>My Subscriptions</h1>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+        <h1>My Subscriptions</h1>
+        <button
+          onClick={handleManageBilling}
+          disabled={actionLoading === 'portal'}
+          className="btn btn-secondary"
+        >
+          {actionLoading === 'portal' ? 'Loading...' : '💳 Manage Payment Methods'}
+        </button>
+      </div>
       {successMessage && (
         <div className="alert" style={{ 
           background: '#d4edda', 
