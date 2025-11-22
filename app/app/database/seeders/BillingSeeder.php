@@ -28,7 +28,7 @@ class BillingSeeder extends Seeder
             'billing_name' => 'Test User',
             'billing_address' => '123 Main St',
             'billing_city' => 'Toronto',
-            'billing_country' => 'Canada',
+            'billing_country' => 'CA',
             'billing_postal_code' => 'M5H 2N2',
         ]);
 
