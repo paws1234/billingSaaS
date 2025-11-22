@@ -78,12 +78,12 @@ function Plans({ user }) {
             
             <h2>{plan.name}</h2>
             <div style={{ fontSize: '36px', fontWeight: 'bold', margin: '20px 0' }}>
-              ${plan.price}
-              <span style={{ fontSize: '16px', color: '#666' }}>/{plan.billing_interval}</span>
+              ${(plan.amount / 100).toFixed(2)}
+              <span style={{ fontSize: '16px', color: '#666' }}>/{plan.interval}</span>
             </div>
             
             <ul style={{ listStyle: 'none', padding: 0, marginBottom: '20px' }}>
-              {plan.features && JSON.parse(plan.features).map((feature, index) => (
+              {plan.metadata?.features?.map((feature, index) => (
                 <li key={index} style={{ padding: '8px 0', borderBottom: '1px solid #eee' }}>
                   ✓ {feature}
                 </li>
