@@ -33,9 +33,21 @@ RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 755 /var/www/html/storage \
     && chmod -R 755 /var/www/html/bootstrap/cache
 
-# Copy nginx config
+# Copy nginx config (from parent directory)
 RUN rm -f /etc/nginx/sites-enabled/default
-COPY ../nginx.render.conf /etc/nginx/sites-available/default
+RUN echo 'server {\n\
+    listen 10000;\n\
+    root /var/www/html/public;\n\
+    index index.php;\n\
+    location / {\n\
+        try_files $uri $uri/ /index.php?$query_string;\n\
+    }\n\
+    location ~ \.php$ {\n\
+        fastcgi_pass 127.0.0.1:9000;\n\
+        fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name;\n\
+        include fastcgi_params;\n\
+    }\n\
+}' > /etc/nginx/sites-available/default
 RUN ln -s /etc/nginx/sites-available/default /etc/nginx/sites-enabled/
 
 # Expose port
