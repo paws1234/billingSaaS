@@ -53,7 +53,7 @@ RUN ln -s /etc/nginx/sites-available/default /etc/nginx/sites-enabled/
 # Expose port
 EXPOSE 10000
 
-# Create start script with migrations
-RUN echo '#!/bin/bash\nphp artisan migrate --force\nphp-fpm -D\nnginx -g "daemon off;"' > /start.sh && chmod +x /start.sh
+# Create start script with migrations and Stripe setup
+RUN echo '#!/bin/bash\nphp artisan migrate --force\nphp artisan stripe:setup-products\nphp-fpm -D\nnginx -g "daemon off;"' > /start.sh && chmod +x /start.sh
 
 CMD ["/start.sh"]
