@@ -42,7 +42,7 @@ class AdminController extends Controller
     {
         $totalUsers = User::count();
         $activeSubscriptions = Subscription::where('status', 'active')->count();
-        $totalRevenue = Invoice::where('status', 'paid')->sum('total_amount');
+        $totalRevenue = Invoice::where('status', 'paid')->sum('amount');
         $pendingInvoices = Invoice::where('status', 'pending')->count();
 
         return response()->json([

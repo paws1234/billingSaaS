@@ -81,6 +81,7 @@ class CheckPlanFeature
                 'required_plan' => 'pro',
                 'current_plan' => $planSlug,
                 'feature' => $feature,
+                'upgrade_required' => true,
             ], 403);
         }
 

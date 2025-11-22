@@ -7,6 +7,7 @@ use App\Models\Plan;
 use App\Models\Subscription;
 use App\Services\Billing\BillingService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Stripe\StripeClient;
 
 class SubscriptionController extends Controller
@@ -25,10 +26,9 @@ class SubscriptionController extends Controller
 
     public function cancel(Request $request)
     {
-        $subscriptionId = $request->input('subscription_id');
-
-        $subscription = Subscription::where('id', $subscriptionId)
-            ->where('user_id', $request->user()->id)
+        // Find user's active subscription
+        $subscription = Subscription::where('user_id', $request->user()->id)
+            ->whereIn('status', ['active', 'trialing'])
             ->firstOrFail();
 
         $subscription->status = 'canceled';
@@ -41,7 +41,7 @@ class SubscriptionController extends Controller
                 $stripe = new StripeClient(config('services.stripe.secret'));
                 $stripe->subscriptions->cancel($subscription->provider_subscription_id);
             } catch (\Exception $e) {
-                \Log::error('Stripe cancellation failed', ['error' => $e->getMessage()]);
+                Log::error('Stripe cancellation failed', ['error' => $e->getMessage()]);
             }
         }
 
@@ -91,7 +91,7 @@ class SubscriptionController extends Controller
                     'subscription' => $subscription->load('plan'),
                 ]);
             } catch (\Exception $e) {
-                \Log::error('Plan change failed', ['error' => $e->getMessage()]);
+                Log::error('Plan change failed', ['error' => $e->getMessage()]);
 
                 return response()->json([
                     'message' => 'Failed to change plan: '.$e->getMessage(),
@@ -133,7 +133,7 @@ class SubscriptionController extends Controller
                     'subscription' => $subscription->load('plan'),
                 ]);
             } catch (\Exception $e) {
-                \Log::error('Resume subscription failed', ['error' => $e->getMessage()]);
+                Log::error('Resume subscription failed', ['error' => $e->getMessage()]);
 
                 return response()->json([
                     'message' => 'Failed to resume subscription: '.$e->getMessage(),
