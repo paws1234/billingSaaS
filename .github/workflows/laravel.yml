@@ -34,16 +34,16 @@ jobs:
         php-version: '8.3'
         extensions: mbstring, pdo, pdo_pgsql, zip, bcmath
 
+    - name: Install Dependencies
+      run: |
+        cd app/app
+        composer install --prefer-dist --no-progress
+
     - name: Copy .env
       run: |
         cd app/app
         cp .env.example .env
         php artisan key:generate
-
-    - name: Install Dependencies
-      run: |
-        cd app/app
-        composer install --prefer-dist --no-progress
 
     - name: Run Laravel Pint
       run: |
