@@ -101,8 +101,8 @@ function Subscriptions() {
                       color: isActive ? 'green' : isCanceled ? 'red' : 'orange',
                       textTransform: 'capitalize'
                     }}>{subscription.status}</span></p>
-                    <p><strong>Price:</strong> ${plan?.price}/{plan?.billing_interval}</p>
-                    <p><strong>Started:</strong> {new Date(subscription.start_date).toLocaleDateString()}</p>
+                    <p><strong>Price:</strong> ${plan?.amount ? (plan.amount / 100).toFixed(2) : '0.00'} CAD/{plan?.interval || 'month'}</p>
+                    <p><strong>Started:</strong> {subscription.starts_at ? new Date(subscription.starts_at).toLocaleDateString() : 'N/A'}</p>
                     {subscription.trial_ends_at && new Date(subscription.trial_ends_at) > new Date() && (
                       <p><strong>Trial ends:</strong> {new Date(subscription.trial_ends_at).toLocaleDateString()}</p>
                     )}
@@ -123,7 +123,7 @@ function Subscriptions() {
                           <option value="" disabled>Change Plan...</option>
                           {plans.filter(p => p.id !== subscription.plan_id).map(p => (
                             <option key={p.id} value={p.id}>
-                              {p.name} (${p.price}/{p.billing_interval})
+                              {p.name} (${p.amount ? (p.amount / 100).toFixed(2) : '0.00'} CAD/{p.interval || 'month'})
                             </option>
                           ))}
                         </select>

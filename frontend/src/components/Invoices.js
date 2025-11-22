@@ -77,10 +77,10 @@ function Invoices() {
                 <tr key={invoice.id} style={{ borderBottom: '1px solid #eee' }}>
                   <td style={{ padding: '12px' }}>#{invoice.id}</td>
                   <td style={{ padding: '12px' }}>
-                    {new Date(invoice.invoice_date).toLocaleDateString()}
+                    {new Date(invoice.created_at).toLocaleDateString()}
                   </td>
                   <td style={{ padding: '12px' }}>
-                    ${invoice.total_amount}
+                    ${invoice.amount ? (invoice.amount / 100).toFixed(2) : '0.00'} {invoice.currency || 'CAD'}
                   </td>
                   <td style={{ padding: '12px' }}>
                     <span style={{ 
