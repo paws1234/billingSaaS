@@ -1,0 +1,84 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+    container_name: billing-app
+    volumes:
+      - ./app/app:/var/www/html
+    depends_on:
+      - mysql
+    networks:
+      - app-net
+
+  web:
+    image: nginx:alpine
+    container_name: billing-nginx
+    ports:
+      - "8000:80"
+    volumes:
+      - ./app/app:/var/www/html
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - app
+    networks:
+      - app-net
+
+  mysql:
+    image: mysql:8
+    container_name: billing-mysql
+    environment:
+      MYSQL_DATABASE: billing
+      MYSQL_USER: app
+      MYSQL_PASSWORD: secret
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - app-net
+
+  redis:
+    image: redis:alpine
+    container_name: billing-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - app-net
+
+  composer:
+    image: composer:2
+    container_name: billing-composer
+    working_dir: /app
+    volumes:
+      - ./app/app:/app
+    networks:
+      - app-net
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: billing-frontend
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      - REACT_APP_API_URL=http://localhost:8000/api
+    depends_on:
+      - app
+    networks:
+      - app-net
+
+networks:
+  app-net:
+    driver: bridge
+
+volumes:
+  mysql_data:
+  redis_data:
