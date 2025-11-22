@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\API\AdminController;
 use App\Http\Controllers\API\CheckoutController;
 use App\Http\Controllers\API\InvoiceController;
 use App\Http\Controllers\API\ProfileController;
@@ -40,8 +41,17 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/subscriptions', [SubscriptionController::class, 'index']);
     Route::post('/subscriptions/cancel', [SubscriptionController::class, 'cancel']);
     Route::post('/subscriptions/{subscription}/change-plan', [SubscriptionController::class, 'changePlan']);
+    Route::post('/subscriptions/{subscription}/resume', [SubscriptionController::class, 'resume']);
 
     Route::get('/invoices', [InvoiceController::class, 'index']);
     Route::get('/invoices/{invoice}', [InvoiceController::class, 'show']);
     Route::get('/invoices/{invoice}/download', [InvoiceController::class, 'download']);
+
+    // Admin routes
+    Route::middleware('admin')->prefix('admin')->group(function () {
+        Route::get('/subscriptions', [AdminController::class, 'subscriptions']);
+        Route::get('/invoices', [AdminController::class, 'invoices']);
+        Route::get('/users', [AdminController::class, 'users']);
+        Route::get('/stats', [AdminController::class, 'stats']);
+    });
 });

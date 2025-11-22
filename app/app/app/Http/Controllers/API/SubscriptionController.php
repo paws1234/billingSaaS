@@ -102,4 +102,45 @@ class SubscriptionController extends Controller
 
         return response()->json(['message' => 'Provider not supported'], 422);
     }
+
+    public function resume(Request $request, Subscription $subscription)
+    {
+        abort_unless($subscription->user_id === $request->user()->id, 403);
+
+        // Can only resume canceled subscriptions
+        if ($subscription->status !== 'canceled') {
+            return response()->json([
+                'message' => 'Can only resume canceled subscriptions',
+            ], 422);
+        }
+
+        // Resume on Stripe
+        if ($subscription->provider === 'stripe' && $subscription->provider_subscription_id) {
+            try {
+                $stripe = new StripeClient(config('services.stripe.secret'));
+                
+                // Resume the subscription
+                $stripe->subscriptions->update($subscription->provider_subscription_id, [
+                    'cancel_at_period_end' => false,
+                ]);
+
+                // Update local subscription
+                $subscription->status = 'active';
+                $subscription->ends_at = null;
+                $subscription->save();
+
+                return response()->json([
+                    'message' => 'Subscription resumed successfully',
+                    'subscription' => $subscription->load('plan'),
+                ]);
+            } catch (\Exception $e) {
+                \Log::error('Resume subscription failed', ['error' => $e->getMessage()]);
+                return response()->json([
+                    'message' => 'Failed to resume subscription: ' . $e->getMessage(),
+                ], 500);
+            }
+        }
+
+        return response()->json(['message' => 'Provider not supported'], 422);
+    }
 }
