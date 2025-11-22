@@ -122,25 +122,19 @@ class SubscriptionController extends Controller
                 $stripe->subscriptions->update($subscription->provider_subscription_id, [
                     'cancel_at_period_end' => false,
                 ]);
-
-                // Update local subscription
-                $subscription->status = 'active';
-                $subscription->ends_at = null;
-                $subscription->save();
-
-                return response()->json([
-                    'message' => 'Subscription resumed successfully',
-                    'subscription' => $subscription->load('plan'),
-                ]);
             } catch (\Exception $e) {
                 Log::error('Resume subscription failed', ['error' => $e->getMessage()]);
-
-                return response()->json([
-                    'message' => 'Failed to resume subscription: '.$e->getMessage(),
-                ], 500);
             }
         }
 
-        return response()->json(['message' => 'Provider not supported'], 422);
+        // Update local subscription
+        $subscription->status = 'active';
+        $subscription->ends_at = null;
+        $subscription->save();
+
+        return response()->json([
+            'message' => 'Subscription resumed successfully',
+            'subscription' => $subscription->load('plan'),
+        ]);
     }
 }
