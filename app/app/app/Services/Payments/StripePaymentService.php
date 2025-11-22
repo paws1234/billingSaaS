@@ -43,8 +43,8 @@ class StripePaymentService implements PaymentProvider
                 'price' => $plan->provider_plan_id,
                 'quantity' => 1,
             ]],
-            'success_url' => config('app.url') . '/billing/success?session_id={CHECKOUT_SESSION_ID}',
-            'cancel_url' => config('app.url') . '/billing/cancel',
+            'success_url' => env('FRONTEND_URL', 'http://localhost:3000') . '/subscriptions?success=true&session_id={CHECKOUT_SESSION_ID}',
+            'cancel_url' => env('FRONTEND_URL', 'http://localhost:3000') . '/plans?canceled=true',
         ];
 
         // Add trial period if configured (14 days default)
