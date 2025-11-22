@@ -3,6 +3,8 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use App\Services\Payments\PaymentProvider;
+use App\Services\Payments\StripePaymentService;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -11,7 +13,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        // Bind PaymentProvider interface to StripePaymentService
+        $this->app->bind(PaymentProvider::class, StripePaymentService::class);
     }
 
     /**
