@@ -22,11 +22,14 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # Set working directory
 WORKDIR /var/www/html
 
-# Copy all application files first
-COPY . .
+# Copy composer files first
+COPY composer.json composer.lock ./
 
-# Install PHP dependencies
-RUN composer install --no-dev --optimize-autoloader --no-interaction
+# Install PHP dependencies with increased memory
+RUN COMPOSER_MEMORY_LIMIT=-1 composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
+
+# Copy all application files
+COPY . .
 
 # Set permissions
 RUN chown -R www-data:www-data /var/www/html \
