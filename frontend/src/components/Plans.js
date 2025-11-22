@@ -27,11 +27,8 @@ function Plans({ user }) {
     setError('');
 
     try {
-      const response = await api.post('/checkout', {
-        plan_id: plan.id,
-        provider: 'stripe',
-        return_url: window.location.origin + '/subscriptions'
-      });
+      // Use plan slug in URL path (e.g., /checkout/basic)
+      const response = await api.post(`/checkout/${plan.slug}`);
 
       // Redirect to payment provider
       if (response.data.checkout_url) {
