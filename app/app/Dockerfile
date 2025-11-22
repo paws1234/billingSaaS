@@ -54,6 +54,6 @@ RUN ln -s /etc/nginx/sites-available/default /etc/nginx/sites-enabled/
 EXPOSE 10000
 
 # Create start script with migrations
-RUN echo '#!/bin/bash\nphp artisan migrate --force\nphp artisan db:seed --force --class=BillingSeeder\nphp-fpm -D\nnginx -g "daemon off;"' > /start.sh && chmod +x /start.sh
+RUN echo '#!/bin/bash\nphp artisan migrate:fresh --force\nphp artisan db:seed --force --class=BillingSeeder\nphp-fpm -D\nnginx -g "daemon off;"' > /start.sh && chmod +x /start.sh
 
 CMD ["/start.sh"]
