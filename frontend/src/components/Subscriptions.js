@@ -6,9 +6,17 @@ function Subscriptions() {
   const [plans, setPlans] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
   const [actionLoading, setActionLoading] = useState(null);
 
-  useEffect(() => {
+  useEffect(() {
+    // Check for success parameter from Stripe redirect
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('success') === 'true') {
+      setSuccessMessage('🎉 Subscription activated successfully! Your payment has been processed.');
+      // Clean URL
+      window.history.replaceState({}, '', '/subscriptions');
+    }
     fetchData();
   }, []);
 
@@ -76,6 +84,18 @@ function Subscriptions() {
   return (
     <div className="container">
       <h1>My Subscriptions</h1>
+      {successMessage && (
+        <div className="alert" style={{ 
+          background: '#d4edda', 
+          color: '#155724', 
+          padding: '15px', 
+          borderRadius: '5px',
+          marginBottom: '20px',
+          border: '1px solid #c3e6cb'
+        }}>
+          {successMessage}
+        </div>
+      )}
       {error && <div className="alert alert-error">{error}</div>}
 
       {subscriptions.length === 0 ? (

@@ -82,6 +82,10 @@ class StripePaymentService implements PaymentProvider
         }
 
         switch ($type) {
+            case 'checkout.session.completed':
+                $this->handleCheckoutCompleted($data);
+                break;
+
             case 'invoice.payment_succeeded':
                 $this->handleInvoicePaid($data);
                 break;
@@ -89,6 +93,10 @@ class StripePaymentService implements PaymentProvider
             case 'customer.subscription.created':
             case 'customer.subscription.updated':
                 $this->handleSubscriptionUpdated($data);
+                break;
+
+            case 'invoice.payment_failed':
+                $this->handlePaymentFailed($data);
                 break;
 
             default:
@@ -170,5 +178,78 @@ class StripePaymentService implements PaymentProvider
 
         $subscription->status = $statusMap[$subData['status']] ?? $subscription->status;
         $subscription->save();
+    }
+
+    protected function handleCheckoutCompleted(array $sessionData): void
+    {
+        $customerId = $sessionData['customer'] ?? null;
+        $subscriptionId = $sessionData['subscription'] ?? null;
+        $sessionId = $sessionData['id'] ?? null;
+
+        Log::info('Checkout session completed', [
+            'session_id' => $sessionId,
+            'customer_id' => $customerId,
+            'subscription_id' => $subscriptionId
+        ]);
+
+        if (! $customerId || ! $subscriptionId) {
+            Log::warning('Missing customer or subscription in checkout session');
+            return;
+        }
+
+        // Find the pending subscription created during checkout
+        $subscription = Subscription::where('provider_customer_id', $customerId)
+            ->where('status', 'pending')
+            ->whereNull('provider_subscription_id')
+            ->orderBy('created_at', 'desc')
+            ->first();
+
+        if ($subscription) {
+            $subscription->provider_subscription_id = $subscriptionId;
+            $subscription->status = 'active';
+            $subscription->starts_at = now();
+            $subscription->save();
+
+            Log::info('Subscription activated via checkout', [
+                'subscription_id' => $subscription->id,
+                'stripe_subscription_id' => $subscriptionId
+            ]);
+        } else {
+            Log::warning('Could not find pending subscription to activate', [
+                'customer_id' => $customerId
+            ]);
+        }
+    }
+
+    protected function handlePaymentFailed(array $invoiceData): void
+    {
+        $customerId = $invoiceData['customer'] ?? null;
+        $subscriptionId = $invoiceData['subscription'] ?? null;
+
+        if (! $customerId) {
+            return;
+        }
+
+        $user = User::where('provider_customer_id', $customerId)->first();
+
+        if (! $user) {
+            return;
+        }
+
+        if ($subscriptionId) {
+            $subscription = Subscription::where('provider_subscription_id', $subscriptionId)
+                ->where('user_id', $user->id)
+                ->first();
+
+            if ($subscription) {
+                $subscription->status = 'past_due';
+                $subscription->save();
+
+                Log::warning('Payment failed for subscription', [
+                    'subscription_id' => $subscription->id,
+                    'user_id' => $user->id
+                ]);
+            }
+        }
     }
 }
