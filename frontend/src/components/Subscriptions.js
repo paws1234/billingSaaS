@@ -9,15 +9,16 @@ function Subscriptions() {
   const [successMessage, setSuccessMessage] = useState('');
   const [actionLoading, setActionLoading] = useState(null);
 
-  useEffect(() {
+  useEffect(() => {
     // Check for success parameter from Stripe redirect
     const params = new URLSearchParams(window.location.search);
     if (params.get('success') === 'true') {
-      setSuccessMessage('🎉 Subscription activated successfully! Your payment has been processed.');
+      setSuccessMessage('Subscription activated successfully! Your payment has been processed.');
       // Clean URL
       window.history.replaceState({}, '', '/subscriptions');
     }
     fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const fetchData = async () => {
